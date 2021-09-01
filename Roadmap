@@ -1,0 +1,20 @@
+#Components
+constructor(LINK token)
+createNewGame
+joinGame
+startGame
+rollChamber
+pullTrigger
+nextPlayer
+reloadGun (after someone is eliminated)
+receive()
+payOutWinner
+
+#TestScripts
+
+
+
+
+
+
+
