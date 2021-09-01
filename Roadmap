@@ -34,6 +34,8 @@ Positive Test Cases
 4. Payout to the winner
   a. amount transfer to the winner's address
 
+5. Multiple games at a time??
+
 Negative Test Cases
 1. Security & Fraud related
 2. 
