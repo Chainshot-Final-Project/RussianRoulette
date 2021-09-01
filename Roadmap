@@ -1,7 +1,9 @@
-#Components
+#Functions in Solidity Contract
 constructor(LINK token)
 createNewGame
-joinGame
+joinGame 
+    -- should check if existing game has space available else create a new game
+    -- trigger startGame if #of Players meet
 startGame
 rollChamber
 pullTrigger
@@ -10,7 +12,35 @@ reloadGun (after someone is eliminated)
 receive()
 payOutWinner
 
+
 #TestScripts
+Positive Test Cases
+1. Player can create a new game 
+  a. Sufficient balance
+  b. initialize #of players
+
+2. Players can join the game
+  a. Sufficient balance
+  b. check if existing game then add to that game else ask to start new game
+  c. Multiple Join (not allowed)
+  d. startGame trigger
+
+3. While the game is running
+  a. Test case when a player is eliminated, remove from game
+  b. Test case when a player is not eliminated - pass to the next Player
+  c. Total rounds of game - depends on # of participants??
+      c.1. keep rollChamber until person is eliminated??
+       
+4. Payout to the winner
+  a. amount transfer to the winner's address
+
+Negative Test Cases
+1. Security & Fraud related
+2. 
+3. 
+
+
+
 
 
 
