@@ -23,9 +23,6 @@ contract rng is VRFConsumerBase {
         fee = 0.1 * 10 ** 18; // 0.1 LINK (Varies by network)
         
     }
-
-
-
   function getRandomNumber() public returns (bytes32 requestId){
     require(LINK.balanceOf(address(this)) >= fee,"Need more LINK");
     return requestRandomness(keyHash, fee);
