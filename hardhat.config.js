@@ -12,16 +12,17 @@ module.exports = {
       chainId: 1337
     },
     rinkeby: {
-      url: [process.env.RINKEBY_URL],
+      url: process.env.RINKEBY_URL,
       accounts: [process.env.PRIVATE_KEY]
     },
     ropsten: {
-      url: [process.env.ROPSTEN_URL],
+      url: process.env.ROPSTEN_URL,
       accounts: [process.env.PRIVATE_KEY]
     },
     kovan: {
-      url: [process.env.KOVAN_URL],
+      url: process.env.KOVAN_URL,
       accounts: [process.env.PRIVATE_KEY]
   }
 }
+
 };
