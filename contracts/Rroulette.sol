@@ -2,12 +2,9 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
-<<<<<<< HEAD
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
-
-=======
 import "contracts/rng.sol";
->>>>>>> 789d1f30214c651f1334a54e167a0a4f59d868b1
+
 contract Rroulette {
    address public owner;
    uint public initialFunding;
@@ -28,7 +25,10 @@ contract Rroulette {
 	    uint shotsFired;
     }
 
+    enum states {open, calculating, closed}
+
     mapping(address => bool) public eliminatedPlayers;
+    mapping(uint => address) public winners;
 
 
 constructor(address _owner) payable {	
@@ -36,7 +36,12 @@ constructor(address _owner) payable {
 		initialFunding = msg.value;
 	}
 
-function createNewGame(uint numOfPlayers) external returns(int){
+function createNewGame(uint _numOfPlayers) external returns(int){
+                /*
+                1. If first game then gameId = 1
+                2. gameId > 1 then check state to be closed
+                3. Game game = Game[]
+                */  
 			}   
 
 function joinGame() external returns(int){
