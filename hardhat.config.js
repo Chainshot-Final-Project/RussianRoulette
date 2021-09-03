@@ -1,5 +1,8 @@
 require("@nomiclabs/hardhat-waffle");
 require('dotenv').config();
+require('@openzeppelin/hardhat-upgrades');
+require("@nomiclabs/hardhat-ethers");
+
 
 
 module.exports = {
