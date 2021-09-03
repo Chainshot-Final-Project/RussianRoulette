@@ -2,8 +2,12 @@
 pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
+<<<<<<< HEAD
 import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
+=======
+import "contracts/rng.sol";
+>>>>>>> 789d1f30214c651f1334a54e167a0a4f59d868b1
 contract Rroulette {
    address public owner;
    uint public initialFunding;
