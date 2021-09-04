@@ -6,43 +6,41 @@ import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 import "contracts/rng.sol";
 
 contract Rroulette {
+    
+   enum GameState {Closed, Open}
+   GameState public state;
    address public owner;
    uint public initialFunding;
+   uint public gameID;
+   address [] public players;
 
    struct Player {
        address playerAddress;
-       uint gameId;
+       uint id;
    }
    
-   struct Game {
-        uint id;
-        uint numOfPlayers;
-        uint totalAmount;
-    }
-    
     struct Gun{
         int bulletLocation;
 	    uint shotsFired;
     }
-
-    enum states {open, calculating, closed}
-
+    
+    
     mapping(address => bool) public eliminatedPlayers;
     mapping(uint => address) public winners;
-
-
-constructor(address _owner) payable {	
-        owner = _owner;	
-		initialFunding = msg.value;
+constructor() payable {	
+        owner = msg.sender;	
+	    gameID = 0;
+        
 	}
 
-function createNewGame(uint _numOfPlayers) external returns(int){
-                /*
-                1. If first game then gameId = 1
-                2. gameId > 1 then check state to be closed
-                3. Game game = Game[]
-                */  
-			}   
+function createNewGame(uint _numOfPlayers) external returns(uint _gameID) {
+    require(state == GameState.Closed && _numOfPlayers == 5);
+    gameID = _gameID; 
+    state = GameState.Open;
+    players.push(msg.sender);
+    gameID += 1;
+}
+
 
 function joinGame() external returns(int){
     /*
@@ -84,5 +82,10 @@ receive() external payable{
 modifier restricted() {
         if (msg.sender == owner) _;
     }
+
+ modifier isState(GameState _state) {
+		require(state == _state, "Wrong state");
+		_;
+  } 
 
 }
