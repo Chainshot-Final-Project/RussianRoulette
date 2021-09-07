@@ -31,6 +31,6 @@ contract rng is VRFConsumerBase {
   
  function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {  
     randomResult = (randomness % players.length) + 1;
-    shot = randomResult;
+    //shot = randomResult;
  }
 }
