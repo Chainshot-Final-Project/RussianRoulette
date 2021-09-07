@@ -31,19 +31,7 @@ contract Rroulette is VRFConsumerBase {
    mapping(uint => Game) Games;
 
    address [] public players;
-   //uint public shot;
 
-   //struct Player {
-     //  address playerAddress;
-      // uint seatPosition; //0-5
-   //}
-
-   // struct Gun{
-    //    int bulletLocation; //0-5
-	//    uint shotsFired;
-  //  }
-
-    //mapping(address => bool) eliminatedPlayers;
     mapping(bytes32 => uint) requestIdsToPlayerRemaining;
     mapping(uint => address) winners;        //GameId => Winner Address
     address payable winner;
@@ -151,8 +139,7 @@ function getRandomNumber() public returns (bytes32 requestId){
      * @param randomness The random result returned by the oracle
 */
  function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
-    randomResult = (randomness % 6) + 1;        // mod six as the gun will have 6 chambers
-    //shot = randomResult;
+    randomResult = (randomness % 6);        // mod six as the gun will have 6 chambers
     emit RequestFulFilled(requestId, randomResult);
  }
 
@@ -227,26 +214,4 @@ function changeOwnership(address _newowner) external onlyOwner{
 receive() external payable{
 
 }
-
-/*
-function nextPlayer(uint _gameId, address _currentPlayer) internal returns(address){
-
-			}
-
-//after someone is eliminated, reloadGun for nextRound
-//Or, rollchamber for next player's turn
-function rollChamber(uint _gameId) public returns(int){
-
-			}
-
-function pullTrigger(uint _gameId) external returns(bool){
-    //return true or false based on survival
-    //eliminatedPlayers[msg.sender]=true/false;
-}
-
-function payWinner(address _winner) internal {
-
-}
-*/
-
 }
