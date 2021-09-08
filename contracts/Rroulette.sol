@@ -26,7 +26,7 @@ contract Rroulette is VRFConsumerBase {
         uint totalAmount;
         GameState state;
     }
-
+   
    uint public gameID;
    mapping(uint => Game) Games;
 
@@ -43,7 +43,7 @@ contract Rroulette is VRFConsumerBase {
     event RequestFulFilled(bytes32 indexed requestId, uint256 indexed result);
     event PlayerShot(uint chairShooting, address player);
     event GameEnded(uint gameId, address indexed winner);
-    event PaidWinner(address from, address winner);
+    event PaidWinner(address from, address winner, uint amount);
 
     constructor(uint _ticketPrice, uint _totalNumofPlayers) VRFConsumerBase(
             0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B,     // VRF Coordinator rinkeby
@@ -77,6 +77,16 @@ contract Rroulette is VRFConsumerBase {
       _;
     }
 
+    modifier noDuplicatePlayer(address _player){
+      bool found;
+      for(uint i=0;i<players.length;i++){
+          if(players[i]== _player) found = true;
+      }
+
+      require(found==false, "Player already joined.");
+      _;
+    }
+
     modifier onlyOwner() {
         require(msg.sender == owner, "Not authorized!");
         _;
@@ -88,8 +98,10 @@ contract Rroulette is VRFConsumerBase {
  **/
 function createNewGame() payable external returns(uint) {
         require(msg.value == ticketPrice, "Insufficient amount of Ether sent");
+        require(Games[gameID].state ==GameState.end, "Previous game has not ended!");
         //if(Games[gameID].state ==GameState.end) revert("Previous game has not ended!");
-        ++gameID;
+        
+        gameID += 1;        
         Game storage game = Games[gameID];
         game.state = GameState.setup;
         ++game.numOfPlayers;
@@ -106,7 +118,7 @@ function createNewGame() payable external returns(uint) {
  * @dev if the required number of players joined the game then trigger the startGame function from here
  * @param _gameId uint
  **/
-function joinGame(uint _gameId) payable external hasValue gameExists(_gameId) isGameSetup(_gameId){
+function joinGame(uint _gameId) payable external hasValue gameExists(_gameId) isGameSetup(_gameId) noDuplicatePlayer(msg.sender){
 
     Game storage game = Games[_gameId];
     require(msg.value == ticketPrice, "Insufficient amount of Ether sent");
@@ -191,6 +203,11 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
     emit GameEnded(_gameId, winner);
 }
 
+/**
+     * @notice Function to get winner's address
+     * @dev Game state should be 'end' to determine the winner
+     * @param _gameId uint
+*/
 function getWinner(uint _gameId) public view gameExists(_gameId) returns(address _winner) {
    Game storage game = Games[_gameId];
    require(game.state==GameState.end, "Game has not ended.");
@@ -201,11 +218,36 @@ function getWinner(uint _gameId) public view gameExists(_gameId) returns(address
    }
 }
 
+/**
+     * @notice Function to get winner's history for gameIds
+     * @param _gameId uint
+*/
+function getWinnerForGameId(uint _gameId) public view returns(address _winner) {
+   return winners[_gameId];   
+}
+
+/**
+     * @notice Function to get Game Information
+     * @dev Return the Game struct information from Games mapping
+     * @param _gameId uint
+*/
+function getGameInfo(uint _gameId) public view returns(uint numPlayers, uint gameMoney, GameState state) {
+    numPlayers =  Games[_gameId].numOfPlayers;
+    gameMoney =  Games[_gameId].totalAmount;
+    state = Games[_gameId].state;      
+}
+
+
+/**
+     * @notice Function to pay the prize money to winner's address
+     * @dev Game state should be 'end' to determine the winner
+*/
 function payWinner() external onlyOwner {
     address payable payTo = winner;
+    uint amount = address(this).balance;
     delete winner;
-    payTo.transfer(address(this).balance);  //pay winner
-    emit PaidWinner(address(this), payTo);
+    payTo.transfer(amount);  //pay winner
+    emit PaidWinner(address(this), payTo, amount);
 }
 
 function changeOwnership(address _newowner) external onlyOwner{

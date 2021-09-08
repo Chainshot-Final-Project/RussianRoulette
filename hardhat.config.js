@@ -29,6 +29,8 @@ module.exports = {
       url: process.env.KOVAN_URL,
       accounts: [process.env.PRIVATE_KEY]
   }
+},
+etherscan: {
+  apiKey: process.env.ETHERSCAN_KEY
 }
-
 };
