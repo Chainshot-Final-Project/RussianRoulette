@@ -18,7 +18,7 @@ describe("Rroulette", () => {
     
     const Contract = await ethers.getContractFactory("Rroulette");
     const contract = await Contract.deploy(ticketPrice, totalNumOfPlayers);
-    owner = await ethers.getSigner();
+    const owner = await ethers.getSigner();
     await contract.deployed()
     
   });
