@@ -47,14 +47,10 @@ describe("Rroulette", () => {
   })
 
   describe("creating a game",  () => {
-    let ticketPrice =  contract.ticketPrice();
-    const players =  contract.players();
-    const player1 = players[0]
-
     it('Should require player has sufficient funds', async () =>  {
-      
-     await contract.deployed(); 
-     assert(await contract.balanceOf(player1) == ticketPrice)
+     await contract.deployed();
+     await contract.createNewGame() 
+     assert(await ethers.provider.getBalance(contract.players[0]) == ticketPrice)
   
 });
 
