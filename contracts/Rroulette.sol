@@ -178,7 +178,7 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
       bytes32 reqId = getRandomNumber();
       requestIdsToPlayerRemaining[reqId]=playersRemaining;
 
-      bulletPlace = randomResult; // This number tell which chamber the bullet is loaded
+      bulletPlace = int(randomResult); // This number tell which chamber the bullet is loaded
       while (bulletPlace > 0 || players[chairShooting] == dead) {
         chairShooting++;
 
