@@ -170,7 +170,7 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
     //uint chairShooting = randomResult - 1;      //This number tell which player will go first from players array[0,1,2..5] that's why -1 here
 
     uint chairShooting; //initialized to 0
-    uint bulletPlace;
+    int bulletPlace;
     address dead = 0x0000000000000000000000000000000000000000;
 
 
