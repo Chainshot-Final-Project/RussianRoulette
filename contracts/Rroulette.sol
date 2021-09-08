@@ -26,7 +26,7 @@ contract Rroulette is VRFConsumerBase {
         uint totalAmount;
         GameState state;
     }
-   
+
    uint public gameID;
    mapping(uint => Game) Games;
 
@@ -55,7 +55,7 @@ contract Rroulette is VRFConsumerBase {
         totalNumofPlayers = _totalNumofPlayers;
         keyHash = 0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311; //rinkeby
         fee = 0.1 * 10 ** 18; // 0.1 LINK (Varies by network)
-        
+
 	}
 
     modifier hasValue() {
@@ -100,8 +100,8 @@ function createNewGame() payable external returns(uint) {
         require(msg.value == ticketPrice, "Insufficient amount of Ether sent");
         require(Games[gameID].state ==GameState.end, "Previous game has not ended!");
         //if(Games[gameID].state ==GameState.end) revert("Previous game has not ended!");
-        
-        gameID += 1;        
+
+        gameID += 1;
         Game storage game = Games[gameID];
         game.state = GameState.setup;
         ++game.numOfPlayers;
@@ -179,7 +179,7 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
       requestIdsToPlayerRemaining[reqId]=playersRemaining;
 
       bulletPlace = randomResult; // This number tell which chamber the bullet is loaded
-      while (bulletPlace != 0) {
+      while (bulletPlace > 0 || players[chairShooting] == dead) {
         chairShooting++;
 
         if(chairShooting == totalNumofPlayers) {
@@ -223,7 +223,7 @@ function getWinner(uint _gameId) public view gameExists(_gameId) returns(address
      * @param _gameId uint
 */
 function getWinnerForGameId(uint _gameId) public view returns(address _winner) {
-   return winners[_gameId];   
+   return winners[_gameId];
 }
 
 /**
@@ -234,7 +234,7 @@ function getWinnerForGameId(uint _gameId) public view returns(address _winner) {
 function getGameInfo(uint _gameId) public view returns(uint numPlayers, uint gameMoney, GameState state) {
     numPlayers =  Games[_gameId].numOfPlayers;
     gameMoney =  Games[_gameId].totalAmount;
-    state = Games[_gameId].state;      
+    state = Games[_gameId].state;
 }
 
 
