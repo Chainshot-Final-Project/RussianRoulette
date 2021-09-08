@@ -61,7 +61,7 @@ expect(await vrfCoordinator)
 
 it('should accept payment from initial player', async () => {  
   await contract.createNewGame({
-    from: players[0],
+    from: contract.players[0],
     value: ticketPrice, 
 });
 
