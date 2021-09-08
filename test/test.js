@@ -87,7 +87,39 @@ it('Should start the game once max numOfPlayers is reached', async () =>  {
 });
 
 });
+describe("Playing the game",  () => {
+
+  it('Should be set to the correct state', async () =>  {
+    
+
+});
+
+  it('Should request a random number from VRFCoordinator every round', async () =>  {
+    expect(await contract.getRandomNumber({ gasLimit: 1000000 }));
+    await randomNumberRequest.wait()
+
+});
+
+it('Should pass turn to the next player until a player is eliminated', async () =>  {
+  
+
+});
+it('Should eliminate and remove the player each round', async () =>  {
+  
+
+});
+
+it('Should result in a single winner', async () =>  {
+  
+
+});
+
+
+});
+
  });
+
+ 
   });
 
           
