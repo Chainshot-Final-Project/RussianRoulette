@@ -1,35 +1,12 @@
-Idea for our final project
+# Overview
+A lot of smart contract games today use random number generation. Unfortunately, these random numbers can be tampered with or manipulated by people, miners, and smart contract developers. This problem can be solved by using Chainlink’s VRF, which publishes its proof on chain before being consumed by applications.
+For our project, we decided to create a “Russian Roulette” game that uses Chainlink’s VRF to create a random number for every round. For v1, there will be 6 players. Each player will have their own ID, and a chance to pull the trigger. If their ID matches the random number(or the bullet in this case) that Chainlink sends back, then they are eliminated. This continues until there is one remaining player, who then takes home the prize.
+We have not seen many games using chainlink’s VRF, so our team agreed that it would be a great opportunity to create one ourselves.
 
-We would implement a game of Russian roulette.
-First player will be a kind of host and decide how much would it cost to participate and the numbers of player that would participate.
-Then others players will join, paying the entrance to the contract. They will choose a seat
-That table will be draw in the "front end" showing the first n characters of players wallets as identification. A private suicide attempt.
-Game begins with first player decided by random (1/numbers of players).
-(Random functions will be implemented as first alternative from chainlink oracle. )
-He will roll the chamber of the gun (1 bullet in six positions) (another random function)
-. Then he will shoot. If he survives the turn pass to next player in the table conserving the state of the gun
-(position of the bullet updated). Next players could take the decision of rolling again the chamber or shooting with previous state updated.
-If he gets killed he is out of the game and another round begins.
-Winner can be one or many(another possible decision by the host.
-Money of the game is payed to the last survivor (or survivors).
+# How the Game Works
+1. Each game will be initiated by a single player. That player will then decide how much it will cost to enter their game. They will do so by depositing a certain amount of ether of their choosing, which will then become the ticket price for other players to enter that specific game. 
+2. Each game will require 6 players. Once the initiated game is filled, the game will begin.
+3. The game will start by each player taking turns pulling the trigger. If player1 pulls the trigger and is not shot, then player 2 will shoot. This will continue until a player is shot, resulting in that player being eliminated. After a player is eliminated, the chamber will be re-rolled and a new round will be started with the remaining players. The last player standing wins! 
 
-(This project is a "little lottery" that would give us experience for next step....a "big  no-loss lottery based in real world lottery oracles  perhaps inside pooltogether".)
-
-
-In principle i would keep it as simple as possible avoiding unnecessary choices. So just one winner in principle
-
-I think we can achieve a short and entertained game in one week that would give a good experience to our audience in our presentation.
-
-
-Tasks
-
-solidity contract
-test cases
-implementation of test cases in javascript
-text design
-screen design
-front end implementation
-optional documentation (type of gun, type of play, history of the game...)
-design of the final presentation.
-
-(Perhpas logs of random numbers generated...for final users...demonstrating real or good randomness. If this is possible of course)
+# Future Improvements
+//will talk to the group about future of the game
