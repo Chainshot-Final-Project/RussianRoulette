@@ -2,6 +2,9 @@ import Web3Modal from "web3modal";
 import {ethers} from 'ethers';
 import renderAccount from './renderAccount';
 import providerOptions from './providerOptions';
+import abi from './src/artifacts/contracts/Rroulette.json'
+const contractAddress = "<enter contract address>"
+
 
 const web3Modal = new Web3Modal({
   network: "mainnet",
