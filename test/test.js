@@ -4,7 +4,7 @@ const STATES = {
   SETUP: 1,
   PLAY: 2,
 }
-describe("RrouletteV1", function () {
+describe("Rroulette", function () {
   let contract;
   let ticketPrice = ethers.utils.parseEther("1");
   let totalNumOfPlayers = 6;
@@ -19,7 +19,7 @@ describe("RrouletteV1", function () {
   before(async () => {    
     signer0 = await ethers.provider.getSigner(0);
     addr0 = await signer0.getAddress(); 
-    const Rroulette = await ethers.getContractFactory("RrouletteV1");
+    const Rroulette = await ethers.getContractFactory("Rroulette");
     contract = await Rroulette.deploy(ticketPrice,totalNumOfPlayers);
     await contract.deployed();
   });

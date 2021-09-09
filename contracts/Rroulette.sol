@@ -9,7 +9,7 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
  * @author Jul-Sep 2021 Chainshot Bootcamp Team (Chris, Daniel, Dilan, Shivali)
  **/
 
-contract RrouletteV1 is VRFConsumerBase {
+contract Rroulette is VRFConsumerBase {
 
    address public owner;
    uint public ticketPrice;
