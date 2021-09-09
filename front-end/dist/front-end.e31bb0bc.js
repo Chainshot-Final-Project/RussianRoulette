@@ -81746,8 +81746,6 @@ var _renderAccount = _interopRequireDefault(require("./renderAccount"));
 
 var _providerOptions = _interopRequireDefault(require("./providerOptions"));
 
-var _ = _interopRequireDefault(require("./"));
-
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 const web3Modal = new _web3modal.default({
@@ -81782,7 +81780,7 @@ async function connect() {
 }
 
 render();
-},{"web3modal":"../node_modules/web3modal/dist/index.js","ethers":"../node_modules/ethers/lib.esm/index.js","./renderAccount":"renderAccount.js","./providerOptions":"providerOptions.js","./":"index.js"}],"../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"web3modal":"../node_modules/web3modal/dist/index.js","ethers":"../node_modules/ethers/lib.esm/index.js","./renderAccount":"renderAccount.js","./providerOptions":"providerOptions.js"}],"../../../../../usr/local/lib/node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -81810,7 +81808,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59951" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60191" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
