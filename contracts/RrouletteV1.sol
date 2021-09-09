@@ -3,13 +3,13 @@ pragma solidity ^0.8.0;
 
 import "hardhat/console.sol";
 import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
-
+//import "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 /**
  * @title Russian Roulette game
  * @author Jul-Sep 2021 Chainshot Bootcamp Team (Chris, Daniel, Dilan, Shivali)
  **/
 
-contract Rroulette is VRFConsumerBase {
+contract RrouletteV1 is VRFConsumerBase {
 
    address public owner;
    uint public ticketPrice;
@@ -28,7 +28,7 @@ contract Rroulette is VRFConsumerBase {
     }
 
    uint public gameID;
-   mapping(uint => Game) Games;
+   mapping(uint => Game) games;
 
    address [] public players;
 
@@ -68,12 +68,12 @@ contract Rroulette is VRFConsumerBase {
         _;
     }
     modifier isGameSetup(uint _gameId){
-      require(Games[_gameId].state == GameState.setup, "Game is already setup. Please try again.");
+      require(games[_gameId].state == GameState.setup, "Game is already setup. Please try again.");
       _;
     }
 
     modifier isGameStarted(uint _gameId){
-      require(Games[_gameId].state == GameState.play, "Game has not started. Please try again.");
+      require(games[_gameId].state == GameState.play, "Game has not started. Please try again.");
       _;
     }
 
@@ -98,17 +98,17 @@ contract Rroulette is VRFConsumerBase {
  **/
 function createNewGame() payable external returns(uint) {
         require(msg.value == ticketPrice, "Insufficient amount of Ether sent");
-        require(Games[gameID].state ==GameState.end, "Previous game has not ended!");
+        require(games[gameID].state ==GameState.end, "Previous game has not ended!");
         //if(Games[gameID].state ==GameState.end) revert("Previous game has not ended!");
 
         gameID += 1;
-        Game storage game = Games[gameID];
+        Game storage game = games[gameID];
         game.state = GameState.setup;
         ++game.numOfPlayers;
         game.totalAmount +=msg.value;
         delete players;
         players.push(msg.sender);
-        Games[gameID] = game;
+        games[gameID] = game;
         emit NewGameCreated(gameID);
         return gameID;
 }
@@ -120,7 +120,7 @@ function createNewGame() payable external returns(uint) {
  **/
 function joinGame(uint _gameId) payable external hasValue gameExists(_gameId) isGameSetup(_gameId) noDuplicatePlayer(msg.sender){
 
-    Game storage game = Games[_gameId];
+    Game storage game = games[_gameId];
     require(msg.value == ticketPrice, "Insufficient amount of Ether sent");
     require(game.numOfPlayers < totalNumofPlayers, "Max players added. Please join next game.");
     ++game.numOfPlayers;
@@ -163,7 +163,7 @@ function getRandomNumber() public returns (bytes32 requestId){
      * @param _gameId uint
 */
 function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gameId){
-    Game storage game = Games[_gameId];
+    Game storage game = games[_gameId];
 
     uint playersRemaining = totalNumofPlayers;
     //getRandomNumber();
@@ -209,7 +209,7 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
      * @param _gameId uint
 */
 function getWinner(uint _gameId) public view gameExists(_gameId) returns(address _winner) {
-   Game storage game = Games[_gameId];
+   Game storage game = games[_gameId];
    require(game.state==GameState.end, "Game has not ended.");
    for (uint i=0; i < players.length;i++) {
    if (players[i] != 0x0000000000000000000000000000000000000000) {
@@ -232,9 +232,9 @@ function getWinnerForGameId(uint _gameId) public view returns(address _winner) {
      * @param _gameId uint
 */
 function getGameInfo(uint _gameId) public view returns(uint numPlayers, uint gameMoney, GameState state) {
-    numPlayers =  Games[_gameId].numOfPlayers;
-    gameMoney =  Games[_gameId].totalAmount;
-    state = Games[_gameId].state;
+    numPlayers =  games[_gameId].numOfPlayers;
+    gameMoney =  games[_gameId].totalAmount;
+    state = games[_gameId].state;
 }
 
 

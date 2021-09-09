@@ -1,132 +1,217 @@
-const { expect, assert } = require("chai");
-const { ethers } = require("hardhat");
-
-
-//These test scripts need a lot of work 
-
-describe("Rroulette", () => {
+const { assert } = require("chai");
+const STATES = {
+  END: 0,
+  SETUP: 1,
+  PLAY: 2,
+}
+describe("RrouletteV1", function () {
   let contract;
-  let owner;
-  const vrfCoordinator = 0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B
-  const LinkToken = 0x01BE23585060835E02B77ef475b0Cc51aA1e0709
-  const KeyHash = 0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311
-  const fee = 0.1 * 10 ** 18;
-  
- beforeEach(async () => {
-   let ticketPrice = await contract.ticketPrice;
-    let totalNumOfPlayers = contract.totalNumOfPlayers;
-    
-    const Contract = await ethers.getContractFactory("Rroulette");
-    const contract = await Contract.deploy(ticketPrice, totalNumOfPlayers);
-    const owner = await ethers.getSigner();
-    await contract.deployed()
-    
-  });
-  describe("Deployment", () => {
-   
-    it('Should set the owner', async () => {
-      expect(await contract.owner().to.equal(owner.address));
-    });
+  let ticketPrice = ethers.utils.parseEther("1");
+  let totalNumOfPlayers = 6;
+  let signer0, addr0, Owner;
+  let signer1, addr1, player1;
+  let signer2, addr2, player2;
+  let signer3, addr3, player3;
+  let signer4, addr4, player4;
+  let signer5, addr5, player5;
+  let signer6, addr6, player6;
 
-    it('Should set the VRF Coordinator', async () => {
-expect(await vrfCoordinator)
-    });
-
-    it('Should set the Link token address', async () => {
-
-    });
-    it('Should set the key hash', async () => {
-
-    });
-    it('Should set the fee', async () => {
-
-    });
-    it('Should set the numOfPlayers', async () => {
-
-    });
-    it('Should set the ticket price', async () => {
-
-    });
-
-  })
-
-  describe("creating a game",  () => {
-
-    it('Should require player has sufficient funds', async () =>  {
-     await contract.deployed();
-     await contract.createNewGame() 
-     assert(await ethers.provider.getBalance(contract.players[0]) == ticketPrice)
-  
-});
-
-it('should accept payment from initial player', async () => {  
-  await contract.createNewGame({
-    from: contract.players[0],
-    value: ticketPrice, 
-});
-
-
-});
-
-describe("joining a game",  () => {
-
-  it('Should require that a game is already created', async () =>  {
-   
-});
-
-it('Should require that the player has sufficient balance', async () =>  {
-   
-});
-
-it('Should require that the game is not full', async () =>  {
-   
-});
-
-it('Should start the game once max numOfPlayers is reached', async () =>  {
-   //also changes state
-});
-
-});
-describe("Playing the game",  () => {
-
-  it('Should be set to the correct state', async () =>  {
-    
-
-});
-
-  it('Should request a random number from VRFCoordinator every round', async () =>  {
-    expect(await contract.getRandomNumber({ gasLimit: 1000000 }));
-    await randomNumberRequest.wait()
-
-});
-
-it('Should pass turn to the next player until a player is eliminated', async () =>  {
-  
-
-});
-it('Should eliminate and remove the player each round', async () =>  {
-  
-
-});
-
-it('Should result in a single winner', async () =>  {
-  
-
-});
-
-
-});
-
- });
-
- 
+  before(async () => {    
+    signer0 = await ethers.provider.getSigner(0);
+    addr0 = await signer0.getAddress(); 
+    const Rroulette = await ethers.getContractFactory("RrouletteV1");
+    contract = await Rroulette.deploy(ticketPrice,totalNumOfPlayers);
+    await contract.deployed();
   });
 
-          
-        
-      
-      
-    
-
+describe('should have stored constructor arguments', () => {
+  it('should have set number of players ', async () => {
+    const x = await contract.totalNumofPlayers();    
+    assert.equal((x), 6);
+  }); 
   
+  it('should have set ticket price ', async () => {
+    const y = ethers.utils.formatEther(await contract.ticketPrice());            
+    assert.equal((y), 1);
+  }); 
 
+  it('should have set signer(0) as owner ', async () => {
+    Owner = await contract.owner();            
+    assert.equal((Owner), addr0);
+  });
+});
+
+describe('should CREATE a new game', () => {
+  before(async () => {
+            signer1 = await ethers.provider.getSigner(1);
+            addr1 = await signer1.getAddress();              
+            await contract.connect(signer1).createNewGame({value:ticketPrice});           
+  });
+
+  it('should have created new game with gameID as 1 ', async () => {
+             assert.equal((await contract.gameID()), 1);       
+  });
+
+  it('should have created Games[1] with GameState.setup, numPlayer=1 and gameMoney=1 ETH ', async () => {
+    let {numPlayers,gameMoney,state} = await contract.getGameInfo(1);   
+    //console.log(await state);    
+    assert.equal(state, STATES.SETUP);
+    assert.equal(numPlayers, 1);
+    console.log("Number of Players: " +await numPlayers.toNumber());
+    assert.equal(ethers.utils.formatEther(gameMoney), 1.0);
+    console.log("Game Money (ETH): " + await ethers.utils.formatEther(gameMoney));
+  }); 
+  
+  it('should have added signer1 as 1st player in players array at 0th index ', async () => {
+    player1 = await contract.players(0); 
+    console.log("Player1: " + await player1);           
+    assert.equal((player1), addr1);
+  });   
+});
+
+
+
+describe('should allow Players to JOIN game', () => {
+  before(async () => {
+    signer2 = await ethers.provider.getSigner(2);
+    addr2 = await signer2.getAddress(); 
+    await contract.connect(signer2).joinGame(1, {value:ticketPrice}); 
+    
+    signer3 = await ethers.provider.getSigner(3);
+    addr3 = await signer3.getAddress(); 
+    await contract.connect(signer3).joinGame(1, {value:ticketPrice});
+
+    signer4 = await ethers.provider.getSigner(4);
+    addr4 = await signer4.getAddress();
+    await contract.connect(signer4).joinGame(1, {value:ticketPrice});
+
+    signer5 = await ethers.provider.getSigner(5);
+    addr5 = await signer5.getAddress();
+    await contract.connect(signer5).joinGame(1, {value:ticketPrice});
+
+    // ** This is triggering startGame so giving Error: Transaction reverted: function call to a non-contract account
+    // ** Commented for time being
+    //signer6 = await ethers.provider.getSigner(6);
+    //addr6 = await signer6.getAddress();
+    //await contract.connect(signer6).joinGame(1, {value:ticketPrice});
+    
+});
+
+it('should have added Players ', async () => {    
+    for(i=1;i<5;i++){
+    player2 = await contract.players(i); 
+    console.log("Player" + (i+1) + " Joined: " + await player2);
+    }
+    let {numPlayers,gameMoney,state} = await contract.getGameInfo(1);   
+    console.log("Number of Players: " +await numPlayers.toNumber());
+    console.log("Game Money (ETH): " + await ethers.utils.formatEther(gameMoney));    
+  });
+});
+
+describe('should NOT allow Player to CREATE a new game when previous game has not ended', () => {
+  before(async () => {
+            signer1 = await ethers.provider.getSigner(1);
+            addr1 = await signer1.getAddress();              
+                       
+  });
+  it('should not have created a new game ', async () => {              
+             let ex;
+            try {
+              await contract.connect(signer1).createNewGame({value:ticketPrice});
+              assert.equal((await contract.gameID()), 2);
+            }
+            catch (_ex) {
+                ex = _ex;
+            }
+            assert(ex, "Previous game has not ended!");
+            console.log("Contract Revert Message: " + ex);       
+  }); 
+  
+});
+
+describe('should NOT allow Player to CREATE a new game with INSUFFICIENT Ticket Price', () => {
+  before(async () => {
+            signer1 = await ethers.provider.getSigner(1);
+            addr1 = await signer1.getAddress();              
+                       
+  });
+  it('should not have created a new game ', async () => {              
+             let ex;
+            try {
+              await contract.connect(signer1).createNewGame({value:ethers.utils.parseEther("0.5")});
+              assert.equal((await contract.gameID()), 2);
+            }
+            catch (_ex) {
+                ex = _ex;
+            }
+            assert(ex, "Insufficient amount of Ether sent");
+            console.log("Contract Revert Message: " + ex);       
+  }); 
+  
+});
+
+describe('should NOT allow DUPLIACTE Players', () => {
+  before(async () => {
+            signer1 = await ethers.provider.getSigner(1);
+            addr1 = await signer1.getAddress();              
+                       
+  });
+  it('should not allow player to join ', async () => {              
+             let ex;
+            try {
+              await contract.connect(signer1).joinGame(1, {value:ticketPrice});               
+            }
+            catch (_ex) {
+                ex = _ex;
+            }
+            assert(ex, "Player already joined.");
+            console.log("Contract Revert Message: " + ex);       
+  }); 
+
+  describe('should check revert conditions for Join Game', () => {
+    let signer7;
+    before(async () => {
+              signer7 = await ethers.provider.getSigner(6);
+              let addr7 = await signer7.getAddress();              
+                         
+    });
+    it('Should require that a game is already created', async () => {              
+               let ex;
+              try {
+                await contract.connect(signer1).joinGame(2, {value:ticketPrice});               
+              }
+              catch (_ex) {
+                  ex = _ex;
+              }
+              assert(ex, "Invalid Game Id, No such game exists");
+              console.log("Contract Revert Message: " + ex);       
+    }); 
+
+    it('Should require that the player has sufficient balance', async () => {              
+      let ex;
+     try {
+       await contract.connect(signer7).joinGame(1, {value:ethers.utils.parseEther("0.5")});               
+     }
+     catch (_ex) {
+         ex = _ex;
+     }
+     assert(ex, "Insufficient amount of Ether sent");
+     console.log("Contract Revert Message: " + ex);
+    /* 
+     it('Should require that the game is not full', async () => {              
+      let ex;
+     try {
+       await contract.connect(signer7).joinGame(1, {value:ticketPrice});               
+     }
+     catch (_ex) {
+         ex = _ex;
+     }
+     assert(ex, "Max players added. Please join next game.");
+     console.log("Contract Revert Message: " + ex);
+     */
+  }); 
+});
+  
+});
+
+});
