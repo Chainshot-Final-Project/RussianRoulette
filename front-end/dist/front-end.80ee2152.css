@@ -1,0 +1,22 @@
+#account {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  margin: 20px;
+  padding: 10px 20px;
+  background-color: #eee;
+  display: inline-flex;
+  flex-direction: column;
+}
+#account .logout {
+  border-radius: 5px;
+  background-color: #2b2be4;
+  color: white;
+  padding: 10px 15px;
+  margin: 10px auto;
+  display: inline-block;
+  text-transform: uppercase;
+  font-size: 0.8em;
+  cursor: pointer;
+}
+
+/*# sourceMappingURL=/front-end.80ee2152.css.map */
