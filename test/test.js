@@ -15,13 +15,19 @@ describe("Rroulette", function () {
   let signer4, addr4, player4;
   let signer5, addr5, player5;
   let signer6, addr6, player6;
-
+  //const linkAddr = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709"; //Rinkeby
+  
   before(async () => {    
     signer0 = await ethers.provider.getSigner(0);
     addr0 = await signer0.getAddress(); 
     const Rroulette = await ethers.getContractFactory("Rroulette");
     contract = await Rroulette.deploy(ticketPrice,totalNumOfPlayers);
     await contract.deployed();
+    console.log("contract deployed at: "+ contract.address);
+    //const linkABI = ["function transfer(address, uint256)"];    
+    //const linkToken = await ethers.getContractAt(linkABI, linkAddr);
+    //const tx = await linkToken.transfer(contract.address, 20000);
+    //await tx.wait(); // mined
   });
 
 describe('should have stored constructor arguments', () => {

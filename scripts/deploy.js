@@ -1,11 +1,10 @@
 
-const  hre = require("hardhat");
+const hre = require("hardhat");
 
 
 async function main() {
-  
-  const Contract = await hre.ethers.getContractFactory("Rroulette");
-  const contract = await Contract.deploy(0000000000000000002, 3);
+  const Rroulette = await ethers.getContractFactory("Rroulette");
+  const contract = await Rroulette.deploy(0000000000000000005, 6);
   await contract.deployed();
 
   console.log("Roulette deployed to:", contract.address);

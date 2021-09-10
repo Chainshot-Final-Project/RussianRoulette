@@ -9,7 +9,7 @@
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.4.6",
     "hardhat": "^2.6.2",
-    "sass": "^1.39.0"
+    "sass": "^1.39.2"
   },
   "dependencies": {
     "@chainlink/contracts": "^0.2.1",
