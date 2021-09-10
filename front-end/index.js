@@ -2,7 +2,10 @@ import Web3Modal from "web3modal";
 import {ethers} from 'ethers';
 import renderAccount from './renderAccount';
 import providerOptions from './providerOptions';
-import abi from './abi.json'
+
+const url = process.env.RINKEBY_URL
+const provider = new ethers.providers.JsonRpcProvider(url);
+const contractAddress = "0xE6711c866D4ee72663521CB2ff8B72879b5f40D0"
 
 
 
@@ -34,4 +37,9 @@ async function connect() {
 }
 
 render();
+
+
+
+
+
 
