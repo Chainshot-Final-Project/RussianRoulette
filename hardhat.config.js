@@ -15,7 +15,9 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      chainId: 1337
+      forking: {
+        url: process.env.ALCHEMY_FORK,
+      }
     },
     rinkeby: {
       url: process.env.RINKEBY_URL,

@@ -2,7 +2,7 @@ import Web3Modal from "web3modal";
 import {ethers} from 'ethers';
 import renderAccount from './renderAccount';
 import providerOptions from './providerOptions';
-
+import abi from './abi.json'
 
 
 
@@ -14,9 +14,7 @@ const web3Modal = new Web3Modal({
 
 async function render() {
   const provider = await connect();
-
   const signer = await provider.getSigner(0);
-
   const address = await signer.getAddress();
   const rawBalance = await provider.getBalance(address);
   const balance = ethers.utils.formatEther(rawBalance);
@@ -36,3 +34,4 @@ async function connect() {
 }
 
 render();
+
