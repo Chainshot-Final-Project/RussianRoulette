@@ -18,6 +18,7 @@ contract Rroulette is VRFConsumerBase {
    bytes32 internal keyHash;
    uint internal fee;
    uint public randomResult;
+   bool public randomReceived;
 
     enum GameState {end, setup, play}
 
@@ -156,6 +157,7 @@ function getRandomNumber() public returns (bytes32 requestId){
  function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
     randomResult = (randomness % 6);        // mod six as the gun will have 6 chambers
     emit RequestFulFilled(requestId, randomResult);
+    randomReceived = true;
  }
 
 /**
@@ -181,11 +183,14 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
       bytes32 reqId = getRandomNumber();
       requestIdsToPlayerRemaining[reqId]=playersRemaining;
 
+      while (randomReceived != true) {} //Wait until randomResult is generated
       bulletPlace = randomResult; // This number tell which chamber the bullet is loaded
+      randomReceived == false;   // reset flag for next number (Perhaps is not necessary)
+
       emit ChairIncrement(chairShooting);
       emit BulletPlace(bulletPlace);
       while (bulletPlace != 0) {
-        chairShooting++;        
+        chairShooting++;
         if(chairShooting == totalNumofPlayers) {
           chairShooting = 0;  //or 1? dont remember....
           continue;
