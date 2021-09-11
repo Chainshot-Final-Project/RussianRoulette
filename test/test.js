@@ -15,8 +15,8 @@ describe("Rroulette", function () {
   let signer4, addr4, player4;
   let signer5, addr5, player5;
   let signer6, addr6, player6;
-  //const linkAddr = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709"; //Rinkeby
-  
+  const linkAddr = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709"; //Rinkeby
+  let linkToken;
   before(async () => {    
     signer0 = await ethers.provider.getSigner(0);
     addr0 = await signer0.getAddress(); 
@@ -24,11 +24,21 @@ describe("Rroulette", function () {
     contract = await Rroulette.deploy(ticketPrice,totalNumOfPlayers);
     await contract.deployed();
     console.log("contract deployed at: "+ contract.address);
-    //const linkABI = ["function transfer(address, uint256)"];    
-    //const linkToken = await ethers.getContractAt(linkABI, linkAddr);
-    //const tx = await linkToken.transfer(contract.address, 20000);
-    //await tx.wait(); // mined
+    const linkABI = ["function transfer(address, uint256)"];    
+    linkToken = await ethers.getContractAt(linkABI, linkAddr);
+    const tx = await linkToken.transfer(contract.address, 20000);
+    await tx.wait(); // mined
   });
+
+  describe('should have balance of LINK Tokens', () => {
+    it('should have balance of LINK Tokens ', async () => {
+      const x = await linkToken.balanceOf(contract.address);    
+      console.log(await (x));
+    }); 
+    
+  });
+
+
 
 describe('should have stored constructor arguments', () => {
   it('should have set number of players ', async () => {
@@ -97,9 +107,9 @@ describe('should allow Players to JOIN game', () => {
 
     // ** This is triggering startGame so giving Error: Transaction reverted: function call to a non-contract account
     // ** Commented for time being
-    //signer6 = await ethers.provider.getSigner(6);
-    //addr6 = await signer6.getAddress();
-    //await contract.connect(signer6).joinGame(1, {value:ticketPrice});
+    signer6 = await ethers.provider.getSigner(6);
+    addr6 = await signer6.getAddress();
+    await contract.connect(signer6).joinGame(1, {value:ticketPrice});
     
 });
 

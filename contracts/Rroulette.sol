@@ -38,6 +38,8 @@ contract Rroulette is VRFConsumerBase {
 
 
     event NewGameCreated(uint gameId);
+    event ChairIncrement(uint chairPosition);
+    event BulletPlace(uint BulletPlace);
     event PlayerJoinedGame(uint gameId, address joinee);
     event RequestNumber(bytes32 indexed requestId);
     event RequestFulFilled(bytes32 indexed requestId, uint256 indexed result);
@@ -45,14 +47,14 @@ contract Rroulette is VRFConsumerBase {
     event GameEnded(uint gameId, address indexed winner);
     event PaidWinner(address from, address winner, uint amount);
 
-    constructor(uint _ticketPrice, uint _totalNumofPlayers) VRFConsumerBase(
+    constructor() VRFConsumerBase(
             0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B,     // VRF Coordinator rinkeby
             0x01BE23585060835E02B77ef475b0Cc51aA1e0709      // LINK Token rinkeby
         )
     {
         owner = msg.sender;
-        ticketPrice = _ticketPrice;
-        totalNumofPlayers = _totalNumofPlayers;
+        ticketPrice = 7 wei;
+        totalNumofPlayers = 6;
         keyHash = 0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311; //rinkeby
         fee = 0.1 * 10 ** 18; // 0.1 LINK (Varies by network)
 
@@ -164,13 +166,14 @@ function getRandomNumber() public returns (bytes32 requestId){
 */
 function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gameId){
     Game storage game = games[_gameId];
+    address[] storage playersList = players;
 
     uint playersRemaining = totalNumofPlayers;
     //getRandomNumber();
     //uint chairShooting = randomResult - 1;      //This number tell which player will go first from players array[0,1,2..5] that's why -1 here
 
     uint chairShooting; //initialized to 0
-    int bulletPlace;
+    uint bulletPlace;
     address dead = 0x0000000000000000000000000000000000000000;
 
 
@@ -178,10 +181,11 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
       bytes32 reqId = getRandomNumber();
       requestIdsToPlayerRemaining[reqId]=playersRemaining;
 
-      bulletPlace = int(randomResult); // This number tell which chamber the bullet is loaded
-      while (bulletPlace > 0 || players[chairShooting] == dead) {
-        chairShooting++;
-
+      bulletPlace = randomResult; // This number tell which chamber the bullet is loaded
+      emit ChairIncrement(chairShooting);
+      emit BulletPlace(bulletPlace);
+      while (bulletPlace != 0) {
+        chairShooting++;        
         if(chairShooting == totalNumofPlayers) {
           chairShooting = 0;  //or 1? dont remember....
           continue;
@@ -193,7 +197,8 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
         bulletPlace--;
       }
       emit PlayerShot(chairShooting, players[chairShooting]);
-      players[chairShooting] = dead;
+      //players[chairShooting] = dead;
+      playersList[chairShooting] = dead;
       playersRemaining--;
     }
 
