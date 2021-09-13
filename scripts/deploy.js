@@ -4,7 +4,7 @@ const hre = require("hardhat");
 
 async function main() {
   const Rroulette = await ethers.getContractFactory("Rroulette");
-  const contract = await Rroulette.deploy();
+  const contract = await Rroulette.deploy(0000000000000000007, 6);
   await contract.deployed();
   
 

@@ -11,7 +11,7 @@ module.exports = {
     artifacts: './src/artifacts',
   },
   etherscan: {
-    apiKey: "MRBKDFMDUWQG2YQS5MGDAF9BXV4YGSX5NX"
+    apiKey:process.env.ETHERSCAN_KEY
   },
   networks: {
     hardhat: {

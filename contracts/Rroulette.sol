@@ -18,7 +18,8 @@ contract Rroulette is VRFConsumerBase {
    bytes32 internal keyHash;
    uint internal fee;
    uint public randomResult;
-   bool public randomReceived;
+   uint public fullfillCounter;
+   mapping(uint => uint) requestToResults;
 
     enum GameState {end, setup, play}
 
@@ -32,15 +33,13 @@ contract Rroulette is VRFConsumerBase {
    mapping(uint => Game) games;
 
    address [] public players;
-
-    mapping(bytes32 => uint) requestIdsToPlayerRemaining;
+    
     mapping(uint => address) winners;        //GameId => Winner Address
     address payable winner;
 
-
     event NewGameCreated(uint gameId);
-    event ChairIncrement(uint chairPosition);
-    event BulletPlace(uint BulletPlace);
+    event ChairPosition(uint chairPosition);
+    event BulletPosition(uint BulletPlace);
     event PlayerJoinedGame(uint gameId, address joinee);
     event RequestNumber(bytes32 indexed requestId);
     event RequestFulFilled(bytes32 indexed requestId, uint256 indexed result);
@@ -48,14 +47,14 @@ contract Rroulette is VRFConsumerBase {
     event GameEnded(uint gameId, address indexed winner);
     event PaidWinner(address from, address winner, uint amount);
 
-    constructor() VRFConsumerBase(
+    constructor(uint _ticketPrice, uint _totalNumofPlayers) VRFConsumerBase(
             0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B,     // VRF Coordinator rinkeby
             0x01BE23585060835E02B77ef475b0Cc51aA1e0709      // LINK Token rinkeby
         )
     {
         owner = msg.sender;
-        ticketPrice = 7 wei;
-        totalNumofPlayers = 6;
+        ticketPrice = _ticketPrice;
+        totalNumofPlayers = _totalNumofPlayers;
         keyHash = 0x2ed0feb3e7fd2022120aa84fab1945545a9f2ffc9076fd6156fa96eaff4c1311; //rinkeby
         fee = 0.1 * 10 ** 18; // 0.1 LINK (Varies by network)
 
@@ -130,9 +129,12 @@ function joinGame(uint _gameId) payable external hasValue gameExists(_gameId) is
     game.totalAmount += msg.value;
     players.push(msg.sender);
     emit PlayerJoinedGame(_gameId, msg.sender);
+    //If #of players joined is equal to totalNumofPlayers then request random numbers from chainlink VRF & change the state to 'play'
     if(game.numOfPlayers==totalNumofPlayers) {
+        for(uint i=1;i<totalNumofPlayers;i++){
+              getRandomNumber();
+        }
         game.state = GameState.play;
-        startGame(_gameId);
     }
 }
 
@@ -140,7 +142,7 @@ function joinGame(uint _gameId) payable external hasValue gameExists(_gameId) is
 ///@notice Requests randomness
 
 function getRandomNumber() public returns (bytes32 requestId){
-    require(LINK.balanceOf(address(this)) >= fee,"Need more LINK");
+    require(LINK.balanceOf(address(this)) >= fee,"Need more LINK");    
     requestId = requestRandomness(keyHash, fee);
     emit RequestNumber(requestId);
     }
@@ -155,62 +157,68 @@ function getRandomNumber() public returns (bytes32 requestId){
      * @param randomness The random result returned by the oracle
 */
  function fulfillRandomness(bytes32 requestId, uint256 randomness) internal override {
+    fullfillCounter++;
     randomResult = (randomness % 6);        // mod six as the gun will have 6 chambers
+    requestToResults[fullfillCounter]=randomResult;
     emit RequestFulFilled(requestId, randomResult);
-    randomReceived = true;
- }
+}
 
 /**
      * @notice Function used to play the game and determine winner
-     * @dev Player at index 0 will start the game and contract will get a random number from Chainlink VRF that will be the bullet potion
+     * @dev Player at index 0 will start the game and use the random number from Chainlink VRF stored in 'requestToResults' as bullet position
      * Bullet Position will decrease by one as players take the shot. When the bullet position is at 0 index, the player taking the shot will get eliminated
      * @param _gameId uint
 */
-function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gameId){
-    Game storage game = games[_gameId];
+//function startGame(uint _gameId) external gameExists(_gameId) isGameStarted(_gameId){
+function startGame(uint _gameId) external onlyOwner isGameStarted(_gameId){  
+    Game storage game = games[_gameId];    
     address[] storage playersList = players;
 
     uint playersRemaining = totalNumofPlayers;
-    //getRandomNumber();
-    //uint chairShooting = randomResult - 1;      //This number tell which player will go first from players array[0,1,2..5] that's why -1 here
-
+    
     uint chairShooting; //initialized to 0
-    uint bulletPlace;
+    uint bulletPlace;   //any number from 0 to 5 
     address dead = 0x0000000000000000000000000000000000000000;
 
-
+    //Continue while number of players is greater than 1
     while (playersRemaining  > 1) {
-      bytes32 reqId = getRandomNumber();
-      requestIdsToPlayerRemaining[reqId]=playersRemaining;
-
-      while (randomReceived != true) {} //Wait until randomResult is generated
-      bulletPlace = randomResult; // This number tell which chamber the bullet is loaded
-      randomReceived == false;   // reset flag for next number (Perhaps is not necessary)
-
-      emit ChairIncrement(chairShooting);
-      emit BulletPlace(bulletPlace);
-      while (bulletPlace != 0) {
+      
+      bulletPlace = requestToResults[playersRemaining-1]; // This number tell which chamber the bullet is loaded
+     
+      emit ChairPosition(chairShooting);
+      emit BulletPosition(bulletPlace);
+      //while (bulletPlace != 0 ) {
+      while (bulletPlace > 0 || players[chairShooting] == dead) {
         chairShooting++;
-        if(chairShooting == totalNumofPlayers) {
-          chairShooting = 0;  //or 1? dont remember....
+        if(chairShooting == totalNumofPlayers) {    //chairShooting == totalNumofPlayers then reset to 0 because index 0, 1,2.. to read from players array
+          chairShooting = 0;  
           continue;
         }
         if(players[chairShooting] == dead)  {  //is dead?
-          //chairShooting++;
           continue;
         }
         bulletPlace--;
       }
       emit PlayerShot(chairShooting, players[chairShooting]);
-      //players[chairShooting] = dead;
       playersList[chairShooting] = dead;
       playersRemaining--;
     }
 
+    //change game state & store winner
     game.state = GameState.end;
     winner = payable(getWinner(_gameId));
     winners[_gameId] = winner;
     emit GameEnded(_gameId, winner);
+
+    //reset random number variables
+    randomResult =0;
+    fullfillCounter=0;
+    for(uint j=1;j<totalNumofPlayers;j++){
+        delete requestToResults[j];          
+    }
+
+    //Pay winner    
+    payWinner();
 }
 
 /**
@@ -218,7 +226,7 @@ function startGame(uint _gameId) internal gameExists(_gameId) isGameStarted(_gam
      * @dev Game state should be 'end' to determine the winner
      * @param _gameId uint
 */
-function getWinner(uint _gameId) public view gameExists(_gameId) returns(address _winner) {
+function getWinner(uint _gameId) internal view gameExists(_gameId) returns(address _winner) {
    Game storage game = games[_gameId];
    require(game.state==GameState.end, "Game has not ended.");
    for (uint i=0; i < players.length;i++) {
@@ -247,12 +255,21 @@ function getGameInfo(uint _gameId) public view returns(uint numPlayers, uint gam
     state = games[_gameId].state;
 }
 
+/**
+     * @notice Function to get Game Information
+     * @dev Return the requestToResults mapping information
+     * @param _counter uint
+*/
+function getFullFillInfo(uint _counter) public view returns(uint) {
+    return requestToResults[_counter];
+}
+
 
 /**
      * @notice Function to pay the prize money to winner's address
      * @dev Game state should be 'end' to determine the winner
 */
-function payWinner() external onlyOwner {
+function payWinner() internal {
     address payable payTo = winner;
     uint amount = address(this).balance;
     delete winner;
