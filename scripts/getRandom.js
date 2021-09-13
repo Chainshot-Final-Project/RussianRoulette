@@ -1,4 +1,4 @@
-const addr = "0x594CcAC74f8a3A582F2E57837d9Baf34C4a2Ff4a"; //Rinkeby - RRoulette deployed on 09082021 5:25PM
+const addr = "0xb228c48Cf7766b80490Ed0Ef4a3A5C557aEEE867"; //Rinkeby - RRoulette deployed on 09082021 5:25PM
 const linkAddr = "0x01BE23585060835E02B77ef475b0Cc51aA1e0709"; //Rinkeby
 
 async function main() {
@@ -10,6 +10,8 @@ async function main() {
   await tx.wait(); // mined
 
   await consumer.getRandomNumber();
+
+  console.log('Random number request tx hash: ', consumer.getRandomNumber); 
 }
 
 // We recommend this pattern to be able to use async/await everywhere

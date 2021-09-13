@@ -6,6 +6,7 @@ async function main() {
   const Rroulette = await ethers.getContractFactory("Rroulette");
   const contract = await Rroulette.deploy();
   await contract.deployed();
+  
 
   console.log("Roulette deployed to:", contract.address);
 }

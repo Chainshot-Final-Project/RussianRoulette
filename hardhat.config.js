@@ -15,10 +15,9 @@ module.exports = {
   },
   networks: {
     hardhat: {
-      chainId: 1337,
       forking: {
-        url: "https://eth-rinkeby.alchemyapi.io/v2/zTwOnqdjaDVxJxx9Q5FCfueX-Q4PJK0L",
-        //blockNumber: 9170421
+        url: process.env.ALCHEMY_FORK,
+        blockNumber: 9170421
       }
     },
     rinkeby: {
