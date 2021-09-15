@@ -1,45 +1,47 @@
-import Web3Modal from "web3modal";
 import {ethers} from 'ethers';
-import renderAccount from './renderAccount';
-import providerOptions from './providerOptions';
-
-const url = process.env.RINKEBY_URL
-const provider = new ethers.providers.JsonRpcProvider(url);
-const contractAddress = "0xE6711c866D4ee72663521CB2ff8B72879b5f40D0"
-
-
+import renderAccount from './src/renderAccount';
+import abi from './abi.json';
+import Web3Modal from 'web3modal';
+import providerOptions from './src/providerOptions';
 
 const web3Modal = new Web3Modal({
-  network: "mainnet",
-  cacheProvider: true,
-  providerOptions
+    network: "rinkeby",
+    cacheProvider: false,
+    providerOptions,
 });
 
-async function render() {
-  const provider = await connect();
-  const signer = await provider.getSigner(0);
-  const address = await signer.getAddress();
-  const rawBalance = await provider.getBalance(address);
-  const balance = ethers.utils.formatEther(rawBalance);
+const contractAddr = "0xC7Bf0c27beA0a33e0B497eB1f2A110d3DAaa733e";
 
-  renderAccount({ address, balance }, logoutHandler);
+web3Modal.clearCachedProvider();
+
+async function connectAndRender() {
+    await ethereum.request({method: 'eth_requestAccounts'});
+    const externalProvider = await web3Modal.connect();
+    const provider = new ethers.providers.Web3Provider(externalProvider);
+    const signer = provider.getSigner(0);
+    const contract = new ethers.Contract(contractAddr, abi, signer);
+
+    const address = await signer.getAddress();
+    const balance = ethers.utils.formatEther(await provider.getBalance(address));
+
+    const decrementHandler = async () => {
+        await contract.createNewGame();
+    }
+
+    //TODO engage the join function. 
+    const joinHandler = async () => {
+        await contract.joinGame();
+    }
+    renderAccount({ address, balance }, decrementHandler, joinHandler, logout);
 }
 
-async function logoutHandler() {
-  web3Modal.clearCachedProvider();
-  await connect();
-  await render();
+async function logout() {
+    web3Modal.clearCachedProvider();
+    connectAndRender();
 }
 
-async function connect() {
-  const externalProvider = await web3Modal.connect();
-  return new ethers.providers.Web3Provider(externalProvider);
-}
+ethereum.on("accountsChanged", () => {
+    connectAndRender();
+});
 
-render();
-
-
-
-
-
-
+connectAndRender();
