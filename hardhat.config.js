@@ -3,10 +3,22 @@ require('dotenv').config();
 //require('@openzeppelin/hardhat-upgrades');
 require("@nomiclabs/hardhat-ethers");
 require("@nomiclabs/hardhat-etherscan");
+require('hardhat-ethernal');
 
 
 module.exports = {
-  solidity: "0.8.0",
+  //solidity: "0.8.0",  
+  solidity: {
+    compilers: [
+      {
+        version: "0.8.0",
+      },
+      {
+        version: "0.6.6",
+        settings: {},
+      },
+    ],
+  },
   paths: {
     artifacts: './src/artifacts',
   },
@@ -17,7 +29,7 @@ module.exports = {
     hardhat: {
       forking: {
         url: process.env.ALCHEMY_FORK,
-        blockNumber: 9170421
+        blockNumber: 9287019
       }
     },
     rinkeby: {

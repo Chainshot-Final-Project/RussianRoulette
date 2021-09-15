@@ -7,9 +7,10 @@ import "@chainlink/contracts/src/v0.8/VRFConsumerBase.sol";
 /**
  * @title Russian Roulette game
  * @author Jul-Sep 2021 Chainshot Bootcamp Team (Chris, Daniel, Dilan, Shivali)
+ * @notice THIS CONTRACT IS USED BY THE test.js FILE TO DEMONSTRATE TEST CASES
  **/
 
-contract Rroulette is VRFConsumerBase {
+contract RrouletteTest is VRFConsumerBase {
 
    address public owner;
    uint public ticketPrice;
@@ -19,7 +20,8 @@ contract Rroulette is VRFConsumerBase {
    uint internal fee;
    uint public randomResult;
    uint public fullfillCounter;
-   mapping(uint => uint) requestToResults;
+   bytes32[] public requestIdCounter;
+   mapping(uint => uint) public requestToResults;
 
     enum GameState {end, setup, play}
 
@@ -47,8 +49,8 @@ contract Rroulette is VRFConsumerBase {
     event GameEnded(uint gameId, address indexed winner);
     event PaidWinner(address from, address winner, uint amount);
 
-    constructor(uint _ticketPrice, uint _totalNumofPlayers) VRFConsumerBase(
-            0xb3dCcb4Cf7a26f6cf6B120Cf5A73875B7BBc655B,     // VRF Coordinator rinkeby
+    constructor(uint _ticketPrice, uint _totalNumofPlayers, address _vrfCoordinator) VRFConsumerBase(
+            _vrfCoordinator, // VRF Coordinator
             0x01BE23585060835E02B77ef475b0Cc51aA1e0709      // LINK Token rinkeby
         )
     {
@@ -131,8 +133,9 @@ function joinGame(uint _gameId) payable external hasValue gameExists(_gameId) is
     emit PlayerJoinedGame(_gameId, msg.sender);
     //If #of players joined is equal to totalNumofPlayers then request random numbers from chainlink VRF & change the state to 'play'
     if(game.numOfPlayers==totalNumofPlayers) {
-        for(uint i=1;i<totalNumofPlayers;i++){
-              getRandomNumber();
+        //for(uint i=1;i<totalNumofPlayers;i++){
+        for(uint i=0;i<totalNumofPlayers-1;i++){
+            requestIdCounter.push(getRandomNumber());
         }
         game.state = GameState.play;
     }
@@ -179,16 +182,17 @@ function startGame(uint _gameId) external onlyOwner isGameStarted(_gameId){
     uint chairShooting; //initialized to 0
     uint bulletPlace;   //any number from 0 to 5 
     address dead = 0x0000000000000000000000000000000000000000;
-
+    uint counter = 1;
     //Continue while number of players is greater than 1
     while (playersRemaining  > 1) {
       
-      bulletPlace = requestToResults[playersRemaining-1]; // This number tell which chamber the bullet is loaded
-     
+      //bulletPlace = requestToResults[playersRemaining-1]; // This number tell which chamber the bullet is loaded
+      bulletPlace = requestToResults[counter]; // This number tell which chamber the bullet is loaded
+
       emit ChairPosition(chairShooting);
       emit BulletPosition(bulletPlace);
       //while (bulletPlace != 0 ) {
-      while (bulletPlace > 0 || players[chairShooting] == dead) {
+      while (bulletPlace > 0 || players[chairShooting] == dead) { 
         chairShooting++;
         if(chairShooting == totalNumofPlayers) {    //chairShooting == totalNumofPlayers then reset to 0 because index 0, 1,2.. to read from players array
           chairShooting = 0;  
@@ -199,10 +203,12 @@ function startGame(uint _gameId) external onlyOwner isGameStarted(_gameId){
         }
         if(bulletPlace != 0){
             bulletPlace--;
-        } 
+        }     
       }
+     
       emit PlayerShot(chairShooting, players[chairShooting]);
       playersList[chairShooting] = dead;
+      counter++;
       playersRemaining--;
     }
 
@@ -221,6 +227,7 @@ function startGame(uint _gameId) external onlyOwner isGameStarted(_gameId){
 
     //Pay winner    
     payWinner();
+   
 }
 
 /**

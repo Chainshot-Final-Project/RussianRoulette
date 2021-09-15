@@ -9,4 +9,7 @@ We have not seen many games using chainlink’s VRF, so our team agreed that it 
 3. The game will start by each player taking turns pulling the trigger. If player1 pulls the trigger and is not shot, then player 2 will shoot. This will continue until a player is shot, resulting in that player being eliminated. After a player is eliminated, the chamber will be re-rolled and a new round will be started with the remaining players. The last player standing wins! 
 
 # Future Improvements
-//will talk to the group about future of the game
+1. Multiple games running at the same time.
+2. Different game modes, such as 3,4,5 player games, 50/50 games, etc.
+3. Incorporating NFT’s through airdrops as well as collaborating with other NFT drops.
+4. Improving our front end for a better user experience
